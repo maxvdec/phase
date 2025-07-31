@@ -12,6 +12,8 @@ int main() {
     initscr();
     setlocale(LC_ALL, "");
     noecho();
+    cbreak();
+    keypad(stdscr, TRUE);
     start_color();
     use_default_colors();
 

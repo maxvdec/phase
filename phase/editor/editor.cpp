@@ -63,7 +63,6 @@ void Editor::change_mode() {
     attroff(A_BOLD);
     printw(" | Row: %d | Col: %d | Line: %d ", y + 1, x + 1, editing_line + 1);
     move(y, x); // Move cursor back to its position
-    refresh();
 }
 
 void Editor::editor_flow() {
@@ -71,9 +70,27 @@ void Editor::editor_flow() {
     int length = get_line(buffer_contents, editing_line).length();
     move(0, length + line_padding);
     buffer.move_cursor(length);
+    editing_x = length;
     change_mode(); // Initial mode display
     while (true) {
         int ch = getch();
+        bool matched_motion = false;
+        for (const auto &motion : motions) {
+            for (const auto &trigger : motion.keys) {
+                if (trigger.key == ch &&
+                    std::find(trigger.modes.begin(), trigger.modes.end(),
+                              mode) != trigger.modes.end()) {
+                    motion.command(*this);
+                    matched_motion = true;
+                    break;
+                }
+            }
+        }
+
+        if (matched_motion) {
+            this->draw_line_numbers();
+            continue;
+        }
         if (ch == 'q' && mode == Mode::Normal) {
             break;
         } else if (ch == 27) {
@@ -89,6 +106,7 @@ void Editor::editor_flow() {
                 buffer.erase();
                 auto [x, y] = get_cursor_pos();
                 if (x > line_padding) {
+                    editing_x--;
                     move(y, x - 1);
                 } else if (y > 0) {
                     buffer_contents = buffer.contents();
@@ -104,14 +122,16 @@ void Editor::editor_flow() {
         } else if (ch == '\n') {
             buffer.insert('\n');
             auto [x, y] = get_cursor_pos();
+            editing_x = 0;
             move(y + 1, line_padding);
             editing_line++;
         } else if (mode == Mode::Edit) {
             buffer.insert(static_cast<char>(ch));
+            editing_x++;
             auto [x, y] = get_cursor_pos();
             move(y, x + 1);
         }
-        refresh();
+
         this->draw_line_numbers();
     }
 }

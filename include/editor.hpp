@@ -32,6 +32,7 @@ class Editor {
   public:
     Buffer buffer;
     int editing_line = 0;
+    int editing_x = 0;
 
     void draw_line_numbers();
     void start_with_file(std::filesystem::path file_path);
@@ -43,8 +44,13 @@ class Editor {
 
 typedef std::function<void(Editor &)> EditorCommand;
 
+struct MotionTrigger {
+    int key;
+    std::vector<Mode> modes;
+};
+
 struct Motion {
-    char action_key;
+    std::vector<MotionTrigger> keys;
     std::string description;
     EditorCommand command;
 };

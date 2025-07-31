@@ -64,5 +64,6 @@ void set_cursor_line();
 void set_cursor_underline();
 
 std::string get_line(std::string content, int nth);
+int count_lines(std::string content);
 
 extern int created_pairs;

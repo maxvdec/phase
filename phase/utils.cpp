@@ -124,3 +124,13 @@ std::string get_line(std::string content, int nth) {
     }
     return line;
 }
+
+int count_lines(std::string content) {
+    std::istringstream stream(content);
+    std::string line;
+    int count = 0;
+    while (std::getline(stream, line)) {
+        count++;
+    }
+    return count;
+}
