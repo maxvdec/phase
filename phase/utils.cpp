@@ -8,6 +8,7 @@
 */
 
 #include "utils.hpp"
+#include <cstdio>
 #include <iostream>
 #include <ncurses.h>
 #include <vector>
@@ -88,4 +89,25 @@ int find_color_approximation(int color256) {
     }
 
     return closest;
+}
+
+void set_cursor_block() {
+    std::printf("\033[1 q");
+    std::fflush(stdout);
+}
+
+void set_cursor_line() {
+    std::printf("\033[5 q");
+    std::fflush(stdout);
+}
+
+void set_cursor_underline() {
+    std::printf("\033[4 q");
+    std::fflush(stdout);
+}
+
+std::tuple<int, int> get_cursor_pos() {
+    int x, y;
+    getyx(stdscr, y, x);
+    return std::make_tuple(x, y);
 }

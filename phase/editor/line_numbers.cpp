@@ -18,6 +18,9 @@ void Editor::draw_line_numbers() {
         mvprintw(i, 0, "*");
     }
     move(0, 0);
+    printw(this->buffer.contents().c_str());
+    move(0, 0);
+    set_cursor_block();
     refresh();
     remove_color(line_colors);
 }

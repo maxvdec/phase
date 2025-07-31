@@ -16,5 +16,7 @@ target_include_directories(phase PUBLIC include ${CURSES_INCLUDE_DIR})
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
+set(CMAKE_PATH ${CMAKE_SOURCE_DIR})
+
 add_definitions(-DCMAKE_PATH="${CMAKE_PATH}")
 

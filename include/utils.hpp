@@ -7,6 +7,7 @@
  Copyright (c) 2025 maxvdec
 */
 
+#include <tuple>
 constexpr int COLOR_DEFAULT = -1; // Uses terminal's default
 constexpr int COLOR_BLACK_256 = 0;
 constexpr int COLOR_RED_256 = 1;
@@ -54,5 +55,11 @@ int create_pair(int foreground, int background);
 void set_color(int pair_num);
 void remove_color(int pair_num);
 int find_color_approximation(int color256);
+
+std::tuple<int, int> get_cursor_pos();
+
+void set_cursor_block();
+void set_cursor_line();
+void set_cursor_underline();
 
 extern int created_pairs;
