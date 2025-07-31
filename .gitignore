@@ -1,0 +1,7 @@
+.clang-format
+Makefile
+compile_commands.json
+CMakeCache.txt
+cmake_install.cmake
+CMakeFiles
+bin
