@@ -61,17 +61,15 @@ void Editor::change_mode() {
         remove_color(palette);
     }
     attroff(A_BOLD);
-    printw(" | Row: %d | Col: %d ", y + 1, x + 1);
+    printw(" | Row: %d | Col: %d | Line: %d ", y + 1, x + 1, editing_line + 1);
     move(y, x); // Move cursor back to its position
     refresh();
 }
 
 void Editor::editor_flow() {
     std::string buffer_contents = buffer.contents();
-    std::string first_line =
-        buffer_contents.substr(0, buffer_contents.find('\n'));
-    int length = first_line.length();
-    move(0, length + 2);
+    int length = get_line(buffer_contents, editing_line).length();
+    move(0, length + line_padding);
     buffer.move_cursor(length);
     change_mode(); // Initial mode display
     while (true) {
@@ -89,13 +87,33 @@ void Editor::editor_flow() {
         } else if (ch == KEY_BACKSPACE || ch == 127) {
             if (mode == Mode::Edit && !buffer.contents().empty()) {
                 buffer.erase();
+                auto [x, y] = get_cursor_pos();
+                if (x > line_padding) {
+                    move(y, x - 1);
+                } else if (y > 0) {
+                    buffer_contents = buffer.contents();
+                    std::string last_line =
+                        get_line(buffer_contents, editing_line - 1);
+                    move(y - 1, last_line.length() + line_padding);
+                    editing_line--;
+                }
             }
         } else if (ch == KEY_RESIZE) {
             clear();
             draw_line_numbers();
+        } else if (ch == '\n') {
+            buffer.insert('\n');
+            auto [x, y] = get_cursor_pos();
+            move(y + 1, line_padding);
+            editing_line++;
         } else if (mode == Mode::Edit) {
             buffer.insert(static_cast<char>(ch));
+            auto [x, y] = get_cursor_pos();
+            move(y, x + 1);
         }
+        refresh();
         this->draw_line_numbers();
     }
 }
+
+Editor::Editor() { motions = make_default_motions(); }

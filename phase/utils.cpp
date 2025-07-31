@@ -11,6 +11,8 @@
 #include <cstdio>
 #include <iostream>
 #include <ncurses.h>
+#include <sstream>
+#include <string>
 #include <vector>
 
 int created_pairs = 1;
@@ -110,4 +112,15 @@ std::tuple<int, int> get_cursor_pos() {
     int x, y;
     getyx(stdscr, y, x);
     return std::make_tuple(x, y);
+}
+
+std::string get_line(std::string content, int nth) {
+    std::istringstream stream(content);
+    std::string line;
+    for (int i = 0; i <= nth; ++i) {
+        if (!std::getline(stream, line)) {
+            return "";
+        }
+    }
+    return line;
 }

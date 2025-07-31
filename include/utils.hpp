@@ -7,6 +7,7 @@
  Copyright (c) 2025 maxvdec
 */
 
+#include <string>
 #include <tuple>
 constexpr int COLOR_DEFAULT = -1; // Uses terminal's default
 constexpr int COLOR_BLACK_256 = 0;
@@ -61,5 +62,7 @@ std::tuple<int, int> get_cursor_pos();
 void set_cursor_block();
 void set_cursor_line();
 void set_cursor_underline();
+
+std::string get_line(std::string content, int nth);
 
 extern int created_pairs;

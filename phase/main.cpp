@@ -3,12 +3,14 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <locale.h>
 #include <ncurses.h>
 #include <string>
 
 int main() {
     // Initialize the screen
     initscr();
+    setlocale(LC_ALL, "");
     noecho();
     start_color();
     use_default_colors();
