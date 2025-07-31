@@ -64,8 +64,6 @@ void Editor::change_mode() {
     printw(" | Row: %d | Col: %d ", y + 1, x + 1);
     move(y, x); // Move cursor back to its position
     refresh();
-
-    buffer.move_cursor(x + y);
 }
 
 void Editor::editor_flow() {
@@ -73,9 +71,8 @@ void Editor::editor_flow() {
     std::string first_line =
         buffer_contents.substr(0, buffer_contents.find('\n'));
     int length = first_line.length();
-    move(0, length);
+    move(0, length + 2);
     buffer.move_cursor(length);
-    Mode last_mode = mode;
     change_mode(); // Initial mode display
     while (true) {
         int ch = getch();
@@ -92,16 +89,13 @@ void Editor::editor_flow() {
         } else if (ch == KEY_BACKSPACE || ch == 127) {
             if (mode == Mode::Edit && !buffer.contents().empty()) {
                 buffer.erase();
-                printw("\b \b");
             }
         } else if (ch == KEY_RESIZE) {
             clear();
             draw_line_numbers();
-            printw("%s", buffer.contents().c_str());
-            move(0, 0);
         } else if (mode == Mode::Edit) {
             buffer.insert(static_cast<char>(ch));
-            printw("%c", ch);
         }
+        this->draw_line_numbers();
     }
 }
