@@ -119,12 +119,19 @@ void Editor::editor_flow() {
         } else if (ch == KEY_RESIZE) {
             clear();
             draw_line_numbers();
-        } else if (ch == '\n') {
+        } else if (ch == '\n' && mode == Mode::Edit) {
             buffer.insert('\n');
             auto [x, y] = get_cursor_pos();
             editing_x = 0;
             move(y + 1, line_padding);
             editing_line++;
+        } else if (mode == Mode::Edit && ch == '\t') {
+            for (int i = 0; i < 4; i++) {
+                buffer.insert(' ');
+            }
+            auto [x, y] = get_cursor_pos();
+            editing_x += 4;
+            move(y, x + 4);
         } else if (mode == Mode::Edit) {
             buffer.insert(static_cast<char>(ch));
             editing_x++;
