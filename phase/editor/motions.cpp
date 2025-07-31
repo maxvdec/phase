@@ -15,11 +15,18 @@
 #include <string>
 #include <vector>
 
-std::vector<Motion> make_default_motions() {
-    std::vector<Motion> motions;
-    motions.reserve(2);
+std::vector<Action> make_default_actions() {
+    std::vector<Action> actions;
+    std::vector<Action> move_actions = make_move_motions();
+    actions.insert(actions.end(), move_actions.begin(), move_actions.end());
+    return actions;
+}
 
-    Motion move_up = {
+std::vector<Action> make_move_motions() {
+    std::vector<Action> motions;
+    motions.reserve(10);
+
+    Action move_up = {
         .keys =
             {
                 {'w', {Mode::Normal}},
@@ -51,7 +58,7 @@ std::vector<Motion> make_default_motions() {
             refresh();
         }};
 
-    Motion move_down = {
+    Action move_down = {
         .keys =
             {
                 {'s', {Mode::Normal}},
@@ -88,7 +95,7 @@ std::vector<Motion> make_default_motions() {
             refresh();
         }};
 
-    Motion move_left = {
+    Action move_left = {
         .keys =
             {
                 {'a', {Mode::Normal}},
@@ -122,7 +129,7 @@ std::vector<Motion> make_default_motions() {
             refresh();
         }};
 
-    Motion move_right = {
+    Action move_right = {
         .keys =
             {
                 {'d', {Mode::Normal}},
@@ -160,10 +167,10 @@ std::vector<Motion> make_default_motions() {
             refresh();
         }};
 
-    Motion move_end_of_line = {
+    Action move_end_of_line = {
         .keys =
             {
-                {'e', {Mode::Normal}},
+                {'r', {Mode::Normal}},
             },
         .description = "Move cursor to end of line",
         .command = [](Editor &editor) {
@@ -184,10 +191,35 @@ std::vector<Motion> make_default_motions() {
             move(y, editor.editing_x + line_padding);
             refresh();
         }};
+
+    Action move_begin_of_line = {
+        .keys =
+            {
+                {'g', {Mode::Normal}},
+            },
+        .description = "Move cursor to end of line",
+        .command = [](Editor &editor) {
+            auto [x, y] = get_cursor_pos();
+            std::string buffer_contents = editor.buffer.contents();
+            std::string current_line =
+                get_line(buffer_contents, editor.editing_line);
+            editor.editing_x = 0;
+
+            int buffer_pos = 0;
+            for (int i = 0; i < editor.editing_line; i++) {
+                std::string line = get_line(buffer_contents, i);
+                buffer_pos += line.length() + 1;
+            }
+
+            editor.buffer.move_cursor(buffer_pos);
+            move(y, editor.editing_x + line_padding);
+            refresh();
+        }};
     motions.push_back(move_left);
     motions.push_back(move_right);
     motions.push_back(move_up);
     motions.push_back(move_down);
     motions.push_back(move_end_of_line);
+    motions.push_back(move_begin_of_line);
     return motions;
 }

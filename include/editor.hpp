@@ -14,6 +14,7 @@
 #include <filesystem>
 #include <functional>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 enum class Mode {
@@ -21,13 +22,16 @@ enum class Mode {
     Edit,
 };
 
-struct Motion;
+struct Action;
 
-std::vector<Motion> make_default_motions();
+std::vector<Action> make_default_actions();
+
+std::vector<Action> make_move_motions();
 
 class Editor {
     Mode mode = Mode::Normal;
-    std::vector<Motion> motions;
+    std::vector<Action> motions;
+    std::unordered_map<std::string, int> palettes;
 
   public:
     Buffer buffer;
@@ -44,13 +48,13 @@ class Editor {
 
 typedef std::function<void(Editor &)> EditorCommand;
 
-struct MotionTrigger {
+struct ActionTrigger {
     int key;
     std::vector<Mode> modes;
 };
 
-struct Motion {
-    std::vector<MotionTrigger> keys;
+struct Action {
+    std::vector<ActionTrigger> keys;
     std::string description;
     EditorCommand command;
 };

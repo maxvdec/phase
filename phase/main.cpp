@@ -13,6 +13,7 @@ int main() {
     setlocale(LC_ALL, "");
     noecho();
     cbreak();
+    set_escdelay(25);
     keypad(stdscr, TRUE);
     start_color();
     use_default_colors();

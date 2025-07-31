@@ -50,12 +50,12 @@ void Editor::change_mode() {
     attron(A_BOLD);
     int palette;
     if (mode == Mode::Normal) {
-        palette = create_pair(COLOR_BRIGHT_GREEN, COLOR_DEFAULT);
+        palette = palettes["normal"];
         set_color(palette);
         printw(" Normal ");
         remove_color(palette);
     } else {
-        palette = create_pair(COLOR_BRIGHT_RED, COLOR_DEFAULT);
+        palette = palettes["edit"];
         set_color(palette);
         printw(" Edit   ");
         remove_color(palette);
@@ -91,9 +91,7 @@ void Editor::editor_flow() {
             this->draw_line_numbers();
             continue;
         }
-        if (ch == 'q' && mode == Mode::Normal) {
-            break;
-        } else if (ch == 27) {
+        if (ch == 27) {
             if (mode == Mode::Normal) {
                 mode = Mode::Edit;
                 change_mode();
@@ -101,6 +99,7 @@ void Editor::editor_flow() {
                 mode = Mode::Normal;
                 change_mode();
             }
+            continue;
         } else if (ch == KEY_BACKSPACE || ch == 127) {
             if (mode == Mode::Edit && !buffer.contents().empty()) {
                 buffer.erase();
@@ -143,4 +142,10 @@ void Editor::editor_flow() {
     }
 }
 
-Editor::Editor() { motions = make_default_motions(); }
+Editor::Editor() {
+    motions = make_default_actions();
+    int edit_palette = create_pair(COLOR_BRIGHT_RED, COLOR_DEFAULT);
+    int normal_palette = create_pair(COLOR_BRIGHT_GREEN, COLOR_DEFAULT);
+    palettes["edit"] = edit_palette;
+    palettes["normal"] = normal_palette;
+}
