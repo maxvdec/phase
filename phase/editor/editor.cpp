@@ -10,12 +10,14 @@
 #include "editor.hpp"
 #include "buffer.hpp"
 #include "utils.hpp"
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <ncurses.h>
 #include <string>
 
 void Editor::start_with_file(std::filesystem::path file_path) {
+    this->file_path = file_path;
     if (!std::filesystem::exists(file_path)) {
         printw("File does not exist: %s\n", file_path.string().c_str());
         return;
@@ -40,6 +42,19 @@ void Editor::start_with_file(std::filesystem::path file_path) {
     file.close();
 }
 
+void Editor::draw_to_state_bar(std::string text, int palette) {
+    auto [x, y] = get_cursor_pos();
+    if (palette != -1) {
+        set_color(palette);
+    }
+    mvprintw(LINES - 1, 0, "%s", text.c_str());
+    if (palette != -1) {
+        remove_color(palette);
+    }
+    move(y, x);
+    refresh();
+}
+
 void Editor::change_mode() {
     if (mode == Mode::Normal) {
         set_cursor_block();
@@ -48,7 +63,10 @@ void Editor::change_mode() {
     }
     auto [x, y] = get_cursor_pos();
     attron(A_ITALIC);
-    mvprintw(LINES - 1, 0, "%s", this->current_file.c_str());
+    mvprintw(LINES - 2, 0, "%s", this->current_file.c_str());
+    if (buffer.has_input) {
+        printw(" *");
+    }
     attroff(A_ITALIC);
     printw(" | Mode:");
     attron(A_BOLD);
@@ -75,6 +93,7 @@ void Editor::editor_flow() {
     move(0, length + line_padding);
     buffer.move_cursor(length);
     editing_x = length;
+    buffer.has_input = false;
     change_mode(); // Initial mode display
     while (true) {
         int ch = getch();
@@ -91,17 +110,52 @@ void Editor::editor_flow() {
             }
         }
 
-        if (ch == '\'') {
+        if (ch == '\'' && mode == Mode::Normal) {
             auto [x, y] = get_cursor_pos();
             current_command = "'";
             command_window();
             change_mode();
             move(y, x);
+            if (current_command.empty() || current_command == "'") {
+                this->draw_line_numbers();
+                this->change_mode();
+                refresh();
+                continue;
+            }
+            bool found = false;
+
+            std::string typed_command =
+                split(current_command, ' ')[0].substr(1);
+
+            for (const auto &command : commands) {
+                if (std::find(command.name.begin(), command.name.end(),
+                              typed_command) != command.name.end()) {
+                    command.action(*this, current_command);
+                    matched_motion = true;
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                set_color(palettes["edit"]);
+                attron(A_BOLD);
+                mvprintw(LINES - 1, 0, "Command not found: %s",
+                         split(current_command, ' ')[0].c_str());
+                remove_color(palettes["edit"]);
+                attroff(A_BOLD);
+                move(y, x);
+            }
+            if (should_quit) {
+                break;
+            }
             matched_motion = true;
         }
 
         if (matched_motion) {
             this->draw_line_numbers();
+            this->change_mode();
+            refresh();
             continue;
         }
         if (ch == 27) {
@@ -152,11 +206,14 @@ void Editor::editor_flow() {
         }
 
         this->draw_line_numbers();
+        this->change_mode();
+        refresh();
     }
 }
 
 Editor::Editor() {
     motions = make_default_actions();
+    commands = make_commands();
     int edit_palette = create_pair(COLOR_BRIGHT_RED, COLOR_DEFAULT);
     int normal_palette = create_pair(COLOR_BRIGHT_GREEN, COLOR_DEFAULT);
     palettes["edit"] = edit_palette;

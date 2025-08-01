@@ -1,4 +1,13 @@
-Hello, this is a test file.
+Hello, this is a test file. Hello World!
+Here's what I tell you every day!
+Let me see if I can edit this file correctly
 Files can have multiple lines.
+
+This is now how it looks to edit on here!
+
+
+function main() {
+    console.log("Hello, World!");
+}
 
 Editing with this is a breeze!

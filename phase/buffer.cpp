@@ -69,6 +69,7 @@ void Buffer::insert(char c) {
         expand_gap(64);
     }
     buffer[gap_start++] = c;
+    has_input = true;
 }
 
 void Buffer::erase() {

@@ -11,6 +11,7 @@
 #define BUFFER_HPP
 
 #include <cstddef>
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -24,6 +25,7 @@ class Buffer {
 
   public:
     Buffer(size_t initial_size = 50);
+    bool has_input = false;
 
     size_t size() const;
     void move_cursor(size_t pos);

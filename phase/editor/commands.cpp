@@ -8,8 +8,13 @@
 */
 
 #include "editor.hpp"
+#include "lib.hpp"
 #include "utils.hpp"
+#include <fstream>
+#include <iostream>
 #include <ncurses.h>
+#include <string>
+#include <vector>
 
 void Editor::command_window() {
     int h = 4, w = 40;
@@ -36,8 +41,12 @@ void Editor::command_window() {
     int ch;
 
     while ((ch = wgetch(modal))) {
-        if (ch == '\n' || ch == 27)
+        if (ch == '\n')
             break;
+        if (ch == 27) {
+            current_command.clear();
+            break;
+        }
         if (ch == KEY_BACKSPACE || ch == 127) {
             if (!current_command.empty()) {
                 current_command.pop_back();
@@ -62,4 +71,97 @@ void Editor::command_window() {
 
     clear();
     refresh();
+}
+
+std::vector<Command> make_commands() {
+    std::vector<Command> actions;
+    Command save = {
+        .name = {"w", "s", "save", "write"},
+        .description = "Save the current file",
+        .action = [](Editor &editor, std::string _) {
+            std::string saved_path;
+
+            if (editor.file_path.has_value()) {
+                std::ofstream file(editor.file_path.value());
+                if (file.is_open()) {
+                    file << editor.buffer.contents();
+                    file.close();
+                } else {
+                    mvprintw(LINES - 1, 0,
+                             "Error: Could not open file for saving.");
+                }
+
+                try {
+                    auto cwd = std::filesystem::current_path();
+                    saved_path =
+                        std::filesystem::relative(editor.file_path.value(), cwd)
+                            .string();
+                } catch (...) {
+                    saved_path = editor.file_path.value().string();
+                }
+            } else {
+                std::string new_file_name =
+                    modal_input("Enter the path where to save the file.", "");
+                if (!new_file_name.empty()) {
+                    editor.file_path = new_file_name;
+                    std::ofstream file(new_file_name);
+                    if (file.is_open()) {
+                        file << editor.buffer.contents();
+                        file.close();
+                    } else {
+                        mvprintw(LINES - 1, 0,
+                                 "Error: Could not open file for saving.");
+                    }
+
+                    try {
+                        auto cwd = std::filesystem::current_path();
+                        saved_path =
+                            std::filesystem::relative(new_file_name, cwd)
+                                .string();
+                    } catch (...) {
+                        saved_path = new_file_name;
+                    }
+                }
+            }
+
+            std::string size_str =
+                std::to_string(editor.buffer.contents().length());
+            std::string bytes_str =
+                std::to_string(editor.buffer.contents().size());
+            editor.buffer.has_input = false;
+            editor.draw_to_state_bar("Saved " + size_str + " characters to " +
+                                     saved_path + " (" + bytes_str +
+                                     " bytes).");
+        }};
+
+    Command quit = {
+        .name = {"q"},
+        .description = "Quit the editor",
+        .action = [](Editor &editor, std::string _) {
+            if (editor.buffer.has_input) {
+                std::string response = modal_input(
+                    "Unsaved changes",
+                    "Are you sure you "
+                    "want to quit? Changes will not be saved. (y/n)",
+                    "");
+                if (response != "y" && response != "Y") {
+                    return;
+                }
+            }
+            endwin();
+            exit(0);
+        }};
+
+    Command quit_force = {.name = {"qq"},
+                          .description =
+                              "Quit the editor and discard all changes",
+                          .action = [](Editor &editor, std::string _) {
+                              endwin();
+                              exit(0);
+                          }};
+
+    actions.push_back(quit);
+    actions.push_back(save);
+    actions.push_back(quit_force);
+    return actions;
 }

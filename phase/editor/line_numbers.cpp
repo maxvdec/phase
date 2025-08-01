@@ -17,7 +17,7 @@ int line_padding = 6;
 
 void Editor::draw_line_numbers() {
     auto [x, y] = get_cursor_pos();
-    for (int i = 0; i < LINES - 1; i++) {
+    for (int i = 0; i < LINES - 2; i++) {
         move(i, 0);
         clrtoeol();
     }
@@ -36,7 +36,7 @@ void Editor::draw_line_numbers() {
     }
     lines.push_back(content.substr(start));
 
-    for (int i = 0; i < lines.size() && i < LINES - 1; ++i) {
+    for (int i = 0; i < lines.size() && i < LINES - 2; ++i) {
         set_color(line_colors);
         mvprintw(i, 0, "%3d ┃ ", i + 1);
         remove_color(line_colors);
@@ -44,12 +44,11 @@ void Editor::draw_line_numbers() {
     }
 
     set_color(line_colors);
-    for (int i = lines.size() - 1; i < LINES - 1; ++i) {
+    for (int i = lines.size() - 1; i < LINES - 2; ++i) {
         mvprintw(i, 0, "  * ┃", i + 1);
     }
     remove_color(line_colors);
 
     move(y, x); // Restore cursor
-    refresh();
     remove_color(line_colors);
 }

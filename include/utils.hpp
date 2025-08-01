@@ -10,6 +10,7 @@
 #include <ncurses.h>
 #include <string>
 #include <tuple>
+#include <vector>
 constexpr int COLOR_DEFAULT = -1; // Uses terminal's default
 constexpr int COLOR_BLACK_256 = 0;
 constexpr int COLOR_RED_256 = 1;
@@ -65,10 +66,14 @@ std::tuple<int, int> get_cursor_pos();
 void set_cursor_block();
 void set_cursor_line();
 void set_cursor_underline();
+void hide_cursor();
+void show_cursor();
 
 std::string get_line(std::string content, int nth);
 int count_lines(std::string content);
 
 void draw_rounded_box(WINDOW *win, int height, int width);
+
+std::vector<std::string> split(std::string str, char delimiter);
 
 extern int created_pairs;

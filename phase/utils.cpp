@@ -165,3 +165,25 @@ void draw_rounded_box(WINDOW *win, int height, int width) {
         mvwaddch(win, i, width - 1, ACS_VLINE);
     }
 }
+
+void hide_cursor() {
+    std::printf("\033[?25l");
+    std::fflush(stdout);
+}
+
+void show_cursor() {
+    std::printf("\033[?25h");
+    std::fflush(stdout);
+}
+
+std::vector<std::string> split(std::string str, char delimiter) {
+    std::vector<std::string> tokens;
+    std::istringstream stream(str);
+    std::string token;
+
+    while (std::getline(stream, token, delimiter)) {
+        tokens.push_back(token);
+    }
+
+    return tokens;
+}
