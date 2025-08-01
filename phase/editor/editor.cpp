@@ -171,15 +171,14 @@ void Editor::editor_flow() {
             if (mode == Mode::Edit && !buffer.contents().empty()) {
                 buffer.erase();
                 auto [x, y] = get_cursor_pos();
-                if (x > line_padding) {
+                if (editing_x > 0) {
                     editing_x--;
-                    move(y, x - 1);
                 } else if (y > 0) {
                     buffer_contents = buffer.contents();
                     std::string last_line =
                         get_line(buffer_contents, editing_line - 1);
-                    move(y - 1, last_line.length() + line_padding);
                     editing_line--;
+                    editing_x = last_line.length();
                 }
             }
         } else if (ch == KEY_RESIZE) {
@@ -218,5 +217,6 @@ Editor::Editor() {
     int normal_palette = create_pair(COLOR_BRIGHT_GREEN, COLOR_DEFAULT);
     palettes["edit"] = edit_palette;
     palettes["normal"] = normal_palette;
+    palettes["line"] = create_pair(COLOR_BRIGHT_CYAN, COLOR_DEFAULT);
     this->current_file = "Untitled";
 }

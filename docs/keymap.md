@@ -43,13 +43,12 @@
 
 ## Insertion & Navigation
 
-| Key  | Action                           |
-| ---- | -------------------------------- |
-| `i`  | Insert before cursor             |
-| `o`  | Insert after cursor              |
-| `'`  | Jump to last change              |
-| `"`  | Toggle between selection sources |
-| `\\` | Switch to alternate buffer/file  |
+| Key | Action                            |
+| --- | --------------------------------- |
+| `i` | Jump to the beginning of the file |
+| `o` | Jump to last change               |
+| `"` | Toggle between selection sources  |
+| `\` | Switch to alternate buffer/file   |
 
 ---
 
