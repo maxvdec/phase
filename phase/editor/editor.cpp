@@ -35,6 +35,7 @@ void Editor::start_with_file(std::filesystem::path file_path) {
     }
 
     this->buffer = std::move(buffer);
+    this->current_file = file_path.filename().string();
 
     file.close();
 }
@@ -46,18 +47,21 @@ void Editor::change_mode() {
         set_cursor_line();
     }
     auto [x, y] = get_cursor_pos();
-    mvprintw(LINES - 1, 0, "Mode:");
+    attron(A_ITALIC);
+    mvprintw(LINES - 1, 0, "%s", this->current_file.c_str());
+    attroff(A_ITALIC);
+    printw(" | Mode:");
     attron(A_BOLD);
     int palette;
     if (mode == Mode::Normal) {
         palette = palettes["normal"];
         set_color(palette);
-        printw(" Normal ");
+        printw(" Normal");
         remove_color(palette);
     } else {
         palette = palettes["edit"];
         set_color(palette);
-        printw(" Edit   ");
+        printw(" Edit");
         remove_color(palette);
     }
     attroff(A_BOLD);
@@ -148,4 +152,5 @@ Editor::Editor() {
     int normal_palette = create_pair(COLOR_BRIGHT_GREEN, COLOR_DEFAULT);
     palettes["edit"] = edit_palette;
     palettes["normal"] = normal_palette;
+    this->current_file = "Untitled";
 }

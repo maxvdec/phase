@@ -19,6 +19,8 @@ std::vector<Action> make_default_actions() {
     std::vector<Action> actions;
     std::vector<Action> move_actions = make_move_motions();
     actions.insert(actions.end(), move_actions.begin(), move_actions.end());
+    std::vector<Action> edit_actions = make_edit_motions();
+    actions.insert(actions.end(), edit_actions.begin(), edit_actions.end());
     return actions;
 }
 
@@ -221,5 +223,44 @@ std::vector<Action> make_move_motions() {
     motions.push_back(move_down);
     motions.push_back(move_end_of_line);
     motions.push_back(move_begin_of_line);
+    return motions;
+}
+
+std::vector<Action> make_edit_motions() {
+    std::vector<Action> motions;
+    motions.reserve(13);
+
+    Action break_line = {
+        .keys =
+            {
+                {'k', {Mode::Normal}},
+            },
+        .description = "Create a new line under the current line",
+        .command = [](Editor &editor) {
+            std::string buffer_contents = editor.buffer.contents();
+            std::string current_line =
+                get_line(buffer_contents, editor.editing_line);
+
+            int buffer_pos = 0;
+            for (int i = 0; i <= editor.editing_line; i++) {
+                std::string line = get_line(buffer_contents, i);
+                buffer_pos += line.length();
+                if (i != editor.editing_line) {
+                    buffer_pos += 1;
+                }
+            }
+
+            editor.buffer.move_cursor(buffer_pos);
+            editor.buffer.insert('\n');
+
+            editor.editing_line += 1;
+            editor.editing_x = 0;
+            move(editor.editing_line, line_padding);
+            editor.mode = Mode::Edit;
+            editor.change_mode();
+            refresh();
+        }};
+
+    motions.push_back(break_line);
     return motions;
 }

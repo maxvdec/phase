@@ -27,16 +27,18 @@ struct Action;
 std::vector<Action> make_default_actions();
 
 std::vector<Action> make_move_motions();
+std::vector<Action> make_edit_motions();
 
 class Editor {
-    Mode mode = Mode::Normal;
     std::vector<Action> motions;
     std::unordered_map<std::string, int> palettes;
 
   public:
+    Mode mode = Mode::Normal;
     Buffer buffer;
     int editing_line = 0;
     int editing_x = 0;
+    std::string current_file;
 
     void draw_line_numbers();
     void start_with_file(std::filesystem::path file_path);

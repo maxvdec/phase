@@ -9,8 +9,8 @@
 
 int main() {
     // Initialize the screen
-    initscr();
     setlocale(LC_ALL, "");
+    initscr();
     noecho();
     cbreak();
     set_escdelay(25);

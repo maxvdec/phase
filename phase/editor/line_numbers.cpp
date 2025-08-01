@@ -38,14 +38,14 @@ void Editor::draw_line_numbers() {
 
     for (int i = 0; i < lines.size() && i < LINES - 1; ++i) {
         set_color(line_colors);
-        mvprintw(i, 0, "%3d | ", i + 1);
+        mvprintw(i, 0, "%3d ┃ ", i + 1);
         remove_color(line_colors);
         mvprintw(i, line_padding, "%s", lines[i].c_str());
     }
 
     set_color(line_colors);
-    for (int i = lines.size(); i < LINES - 1; ++i) {
-        mvprintw(i, 0, "  * |", i + 1);
+    for (int i = lines.size() - 1; i < LINES - 1; ++i) {
+        mvprintw(i, 0, "  * ┃", i + 1);
     }
     remove_color(line_colors);
 
