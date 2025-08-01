@@ -91,6 +91,15 @@ void Editor::editor_flow() {
             }
         }
 
+        if (ch == '\'') {
+            auto [x, y] = get_cursor_pos();
+            current_command = "'";
+            command_window();
+            change_mode();
+            move(y, x);
+            matched_motion = true;
+        }
+
         if (matched_motion) {
             this->draw_line_numbers();
             continue;

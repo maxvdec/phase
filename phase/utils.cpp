@@ -48,6 +48,20 @@ void remove_color(int pair_num) {
     attroff(COLOR_PAIR(pair_num));
 }
 
+void set_colorw(WINDOW *win, int pair_num) {
+    if (!has_colors()) {
+        return;
+    }
+    wattron(win, COLOR_PAIR(pair_num));
+}
+
+void remove_colorw(WINDOW *win, int pair_num) {
+    if (!has_colors()) {
+        return;
+    }
+    wattroff(win, COLOR_PAIR(pair_num));
+}
+
 int find_color_approximation(int color256) {
     int r, g, b;
 
@@ -133,4 +147,21 @@ int count_lines(std::string content) {
         count++;
     }
     return count;
+}
+
+void draw_rounded_box(WINDOW *win, int height, int width) {
+    mvwaddch(win, 0, 0, ACS_ULCORNER);
+    mvwaddch(win, 0, width - 1, ACS_URCORNER);
+    mvwaddch(win, height - 1, 0, ACS_LLCORNER);
+    mvwaddch(win, height - 1, width - 1, ACS_LRCORNER);
+
+    for (int i = 1; i < width - 1; ++i) {
+        mvwaddch(win, 0, i, ACS_HLINE);
+        mvwaddch(win, height - 1, i, ACS_HLINE);
+    }
+
+    for (int i = 1; i < height - 1; ++i) {
+        mvwaddch(win, i, 0, ACS_VLINE);
+        mvwaddch(win, i, width - 1, ACS_VLINE);
+    }
 }

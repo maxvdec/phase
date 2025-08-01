@@ -7,6 +7,7 @@
  Copyright (c) 2025 maxvdec
 */
 
+#include <ncurses.h>
 #include <string>
 #include <tuple>
 constexpr int COLOR_DEFAULT = -1; // Uses terminal's default
@@ -54,7 +55,9 @@ constexpr int COLOR_NAVY = 18;
 
 int create_pair(int foreground, int background);
 void set_color(int pair_num);
+void set_colorw(WINDOW *win, int pair_num);
 void remove_color(int pair_num);
+void remove_colorw(WINDOW *win, int pair_num);
 int find_color_approximation(int color256);
 
 std::tuple<int, int> get_cursor_pos();
@@ -65,5 +68,7 @@ void set_cursor_underline();
 
 std::string get_line(std::string content, int nth);
 int count_lines(std::string content);
+
+void draw_rounded_box(WINDOW *win, int height, int width);
 
 extern int created_pairs;

@@ -32,6 +32,7 @@ std::vector<Action> make_edit_motions();
 class Editor {
     std::vector<Action> motions;
     std::unordered_map<std::string, int> palettes;
+    std::string current_command;
 
   public:
     Mode mode = Mode::Normal;
@@ -44,6 +45,7 @@ class Editor {
     void start_with_file(std::filesystem::path file_path);
     void editor_flow();
     void change_mode();
+    void command_window();
 
     Editor();
 };
