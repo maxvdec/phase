@@ -336,9 +336,9 @@ std::vector<Action> make_search_motions() {
                 editor.current_mark++;
             }
             if (editor.current_mark > editor.marks.size() - 1) {
-                editor.current_mark = 0;
-            } else if (editor.current_mark < 0) {
                 editor.current_mark = editor.marks.size() - 1;
+            } else if (editor.current_mark < 0) {
+                editor.current_mark = 0;
             }
             Mark &mark = editor.marks[editor.current_mark];
             editor.editing_x = mark.editor_x;
