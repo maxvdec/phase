@@ -47,6 +47,8 @@ void Editor::draw_to_state_bar(std::string text, int palette) {
     if (palette != -1) {
         set_color(palette);
     }
+    move(LINES - 1, 0);
+    clrtoeol();
     mvprintw(LINES - 1, 0, "%s", text.c_str());
     if (palette != -1) {
         remove_color(palette);
@@ -63,6 +65,8 @@ void Editor::change_mode() {
     }
     auto [x, y] = get_cursor_pos();
     attron(A_ITALIC);
+    move(LINES - 2, 0);
+    clrtoeol();
     mvprintw(LINES - 2, 0, "%s", this->current_file.c_str());
     if (buffer.has_input) {
         printw(" *");

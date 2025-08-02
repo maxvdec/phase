@@ -21,6 +21,8 @@ std::vector<Action> make_default_actions() {
     actions.insert(actions.end(), move_actions.begin(), move_actions.end());
     std::vector<Action> edit_actions = make_edit_motions();
     actions.insert(actions.end(), edit_actions.begin(), edit_actions.end());
+    std::vector<Action> search_actions = make_search_motions();
+    actions.insert(actions.end(), search_actions.begin(), search_actions.end());
     return actions;
 }
 
@@ -262,5 +264,88 @@ std::vector<Action> make_edit_motions() {
         }};
 
     motions.push_back(break_line);
+    return motions;
+}
+
+std::vector<Action> make_search_motions() {
+    std::vector<Action> motions;
+    motions.reserve(5);
+    Action create_mark = {
+        .keys =
+            {
+                {'m', {Mode::Normal}},
+            },
+        .description = "Place a mark at the current cursor position",
+        .command = [](Editor &editor) {
+            for (int i = 0; i < editor.marks.size(); i++) {
+                if (editor.marks[i].editor_x == editor.editing_x &&
+                    editor.marks[i].editor_y == editor.editing_line) {
+                    editor.draw_to_state_bar("Removed mark " +
+                                             std::to_string(i) +
+                                             " at current position.");
+                    editor.marks.erase(editor.marks.begin() + i);
+                    return;
+                }
+            }
+            editor.marks.push_back(Mark{editor.editing_x, editor.editing_line});
+            editor.draw_to_state_bar("Marked current position as mark " +
+                                     std::to_string(editor.marks.size() - 1) +
+                                     ".");
+        }};
+    Action mark_previous = {
+        .keys =
+            {
+                {',', {Mode::Normal}},
+            },
+        .description = "Go to the previous mark",
+        .command = [](Editor &editor) {
+            if (editor.marks.empty()) {
+                editor.draw_to_state_bar("No marks set.",
+                                         editor.palettes["edit"]);
+                return;
+            }
+            if (editor.current_mark < 0) {
+                editor.current_mark = editor.marks.size() - 1;
+            } else {
+                editor.current_mark--;
+            }
+            if (editor.current_mark > editor.marks.size() - 1) {
+                editor.current_mark = 0;
+            } else if (editor.current_mark < 0) {
+                editor.current_mark = editor.marks.size() - 1;
+            }
+            Mark &mark = editor.marks[editor.current_mark];
+            editor.editing_x = mark.editor_x;
+            editor.editing_line = mark.editor_y;
+        }};
+    Action mark_forward = {
+        .keys =
+            {
+                {'.', {Mode::Normal}},
+            },
+        .description = "Go to the next mark",
+        .command = [](Editor &editor) {
+            if (editor.marks.empty()) {
+                editor.draw_to_state_bar("No marks set.",
+                                         editor.palettes["edit"]);
+                return;
+            }
+            if (editor.current_mark < 0) {
+                editor.current_mark = 0;
+            } else {
+                editor.current_mark++;
+            }
+            if (editor.current_mark > editor.marks.size() - 1) {
+                editor.current_mark = 0;
+            } else if (editor.current_mark < 0) {
+                editor.current_mark = editor.marks.size() - 1;
+            }
+            Mark &mark = editor.marks[editor.current_mark];
+            editor.editing_x = mark.editor_x;
+            editor.editing_line = mark.editor_y;
+        }};
+    motions.push_back(create_mark);
+    motions.push_back(mark_previous);
+    motions.push_back(mark_forward);
     return motions;
 }

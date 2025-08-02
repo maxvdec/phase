@@ -30,17 +30,25 @@ std::vector<Action> make_default_actions();
 
 std::vector<Action> make_move_motions();
 std::vector<Action> make_edit_motions();
+std::vector<Action> make_search_motions();
 
 std::vector<Command> make_commands();
+
+struct Mark {
+    int editor_x;
+    int editor_y;
+};
 
 class Editor {
     std::vector<Action> motions;
     std::vector<Command> commands;
-    std::unordered_map<std::string, int> palettes;
     std::string current_command;
 
   public:
     Mode mode = Mode::Normal;
+    std::vector<Mark> marks;
+    int current_mark = -1;
+    std::unordered_map<std::string, int> palettes;
     std::optional<std::filesystem::path> file_path;
     Buffer buffer;
     int editing_line = 0;

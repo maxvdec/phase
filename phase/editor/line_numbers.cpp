@@ -6,7 +6,6 @@
  Description: Line number logic
  Copyright (c) 2025 maxvdec
 */
-
 #include "editor.hpp"
 #include "utils.hpp"
 #include <ncurses.h>
@@ -36,12 +35,11 @@ void Editor::draw_line_numbers() {
     }
 
     int line_colors = create_pair(COLOR_BRIGHT_CYAN, COLOR_DEFAULT);
-
     std::string current_line =
         (editing_line < lines.size()) ? lines[editing_line] : "";
+
     int available_width = COLS - line_padding;
     int scroll_offset = 0;
-
     if (editing_x >= available_width) {
         scroll_offset = editing_x - available_width + 1;
     }
@@ -57,7 +55,6 @@ void Editor::draw_line_numbers() {
 
         if (i < lines.size()) {
             std::string line_text = lines[i];
-
             if (scroll_offset > 0) {
                 if ((int)line_text.length() > scroll_offset) {
                     line_text = line_text.substr(scroll_offset);
@@ -65,20 +62,39 @@ void Editor::draw_line_numbers() {
                     line_text = "";
                 }
             }
-
             if ((int)line_text.length() > available_width) {
                 line_text = line_text.substr(0, available_width);
             }
 
             if (!line_text.empty()) {
-                mvprintw(i, line_padding, "%s", line_text.c_str());
+                for (int char_pos = 0; char_pos < (int)line_text.length();
+                     char_pos++) {
+                    int actual_x = char_pos + scroll_offset;
+                    bool has_mark = false;
+
+                    for (const Mark &mark : marks) {
+                        if (mark.editor_y == i && mark.editor_x == actual_x) {
+                            has_mark = true;
+                            break;
+                        }
+                    }
+
+                    if (has_mark) {
+                        attron(A_UNDERLINE);
+                    }
+
+                    mvaddch(i, line_padding + char_pos, line_text[char_pos]);
+
+                    if (has_mark) {
+                        attroff(A_UNDERLINE);
+                    }
+                }
             }
         }
     }
 
     int cursor_y = editing_line;
     int cursor_x;
-
     if (scroll_offset > 0) {
         cursor_x = COLS - 1;
     } else {
