@@ -11,6 +11,7 @@
 #define EDITOR_HPP
 
 #include "buffer.hpp"
+#include <cstddef>
 #include <filesystem>
 #include <functional>
 #include <optional>
@@ -39,6 +40,12 @@ struct Mark {
     int editor_y;
 };
 
+struct WordOffset {
+    int x;
+    int y;
+    int skipped;
+};
+
 class Editor {
     std::vector<Action> motions;
     std::vector<Command> commands;
@@ -62,6 +69,7 @@ class Editor {
     void change_mode();
     void command_window();
     void draw_to_state_bar(std::string text, int palette = -1);
+    WordOffset get_next_word();
 
     Editor();
 };

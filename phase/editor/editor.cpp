@@ -11,6 +11,7 @@
 #include "buffer.hpp"
 #include "utils.hpp"
 #include <algorithm>
+#include <cstddef>
 #include <fstream>
 #include <iostream>
 #include <ncurses.h>
@@ -223,4 +224,76 @@ Editor::Editor() {
     palettes["normal"] = normal_palette;
     palettes["line"] = create_pair(COLOR_BRIGHT_CYAN, COLOR_DEFAULT);
     this->current_file = "Untitled";
+}
+
+WordOffset Editor::get_next_word() {
+    const std::string buffer_contents = buffer.contents();
+    const std::string current_line = get_line(buffer_contents, editing_line);
+
+    if (editing_x >= current_line.length()) {
+        int next_line = editing_line + 1;
+        if (next_line < count_lines(buffer_contents)) {
+            std::string next_line_content =
+                get_line(buffer_contents, next_line);
+            int first_word_pos = 0;
+            while (first_word_pos < next_line_content.length() &&
+                   is_empty(next_line_content[first_word_pos])) {
+                first_word_pos++;
+            }
+            return {first_word_pos, next_line, 0};
+        } else {
+            return {static_cast<int>(current_line.length()), editing_line, 0};
+        }
+    }
+
+    int pos = editing_x;
+
+    if (is_word_separator(current_line[pos])) {
+        while (pos < current_line.length() &&
+               is_word_separator(current_line[pos])) {
+            pos++;
+        }
+        if (pos >= current_line.length()) {
+            int next_line = editing_line + 1;
+            if (next_line < count_lines(buffer_contents)) {
+                std::string next_line_content =
+                    get_line(buffer_contents, next_line);
+                int first_word_pos = 0;
+                while (first_word_pos < next_line_content.length() &&
+                       is_empty(next_line_content[first_word_pos])) {
+                    first_word_pos++;
+                }
+                return {first_word_pos, next_line, 0};
+            }
+            return {static_cast<int>(current_line.length()), editing_line, 0};
+        }
+        return {pos, editing_line, 0};
+    }
+
+    while (pos < current_line.length() &&
+           !is_word_separator(current_line[pos])) {
+        pos++;
+    }
+
+    while (pos < current_line.length() &&
+           is_word_separator(current_line[pos])) {
+        pos++;
+    }
+
+    if (pos >= current_line.length()) {
+        int next_line = editing_line + 1;
+        if (next_line < count_lines(buffer_contents)) {
+            std::string next_line_content =
+                get_line(buffer_contents, next_line);
+            int first_word_pos = 0;
+            while (first_word_pos < next_line_content.length() &&
+                   is_empty(next_line_content[first_word_pos])) {
+                first_word_pos++;
+            }
+            return {first_word_pos, next_line, 0};
+        }
+        return {static_cast<int>(current_line.length()), editing_line, 0};
+    }
+
+    return {pos, editing_line, 0};
 }

@@ -219,12 +219,31 @@ std::vector<Action> make_move_motions() {
             move(y, editor.editing_x + line_padding);
             refresh();
         }};
+    Action move_word = {.keys =
+                            {
+                                {'f', {Mode::Normal}},
+                            },
+                        .description = "Move to the beggining of the next word",
+                        .command = [](Editor &editor) {
+                            auto [x, y, _] = editor.get_next_word();
+                            editor.editing_x = x;
+                            editor.editing_line = y;
+                            int buffer_pos =
+                                screen_to_buffer(x, y, editor.buffer);
+                            if (buffer_pos < 0) {
+                                return;
+                            }
+                            editor.buffer.move_cursor(buffer_pos);
+                            move(y, x + line_padding);
+                            refresh();
+                        }};
     motions.push_back(move_left);
     motions.push_back(move_right);
     motions.push_back(move_up);
     motions.push_back(move_down);
     motions.push_back(move_end_of_line);
     motions.push_back(move_begin_of_line);
+    motions.push_back(move_word);
     return motions;
 }
 

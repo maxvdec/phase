@@ -89,6 +89,16 @@ void Buffer::print() const {
 
 size_t Buffer::cursor_pos() const { return gap_start; }
 
+void Buffer::move_by(size_t offset) {
+    size_t new_pos = gap_start + offset;
+    if (new_pos < 0 || new_pos > size()) {
+        std::cerr << "Error: Position out of bounds for move operation."
+                  << std::endl;
+        return;
+    }
+    move_cursor(new_pos);
+}
+
 std::string Buffer::contents() const {
     std::string content;
     content.reserve(size());

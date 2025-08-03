@@ -29,6 +29,7 @@ class Buffer {
 
     size_t size() const;
     void move_cursor(size_t pos);
+    void move_by(size_t offset);
     void insert(char c);
     void erase();
     void print() const;

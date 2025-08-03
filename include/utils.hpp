@@ -7,6 +7,7 @@
  Copyright (c) 2025 maxvdec
 */
 
+#include "buffer.hpp"
 #include <ncurses.h>
 #include <string>
 #include <tuple>
@@ -75,5 +76,10 @@ int count_lines(std::string content);
 void draw_rounded_box(WINDOW *win, int height, int width);
 
 std::vector<std::string> split(std::string str, char delimiter);
+
+bool is_word_separator(char c);
+bool is_empty(char c);
+
+int screen_to_buffer(int x, int y, Buffer &buffer);
 
 extern int created_pairs;

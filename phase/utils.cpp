@@ -8,6 +8,7 @@
 */
 
 #include "utils.hpp"
+#include <cctype>
 #include <cstdio>
 #include <iostream>
 #include <ncurses.h>
@@ -186,4 +187,35 @@ std::vector<std::string> split(std::string str, char delimiter) {
     }
 
     return tokens;
+}
+
+bool is_word_separator(char c) { return !isalnum(c) && c != '_' && c != '-'; }
+
+bool is_empty(char c) {
+    return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\0';
+}
+
+int screen_to_buffer(int x, int y, Buffer &buffer) {
+    std::string content = buffer.contents();
+
+    if (y < 0 || y >= count_lines(content)) {
+        return -1;
+    }
+
+    std::string target_line = get_line(content, y);
+
+    if (x < 0 || x > target_line.length()) {
+        return -1;
+    }
+
+    int buffer_pos = 0;
+
+    for (int i = 0; i < y; i++) {
+        std::string line = get_line(content, i);
+        buffer_pos += line.length() + 1;
+    }
+
+    buffer_pos += x;
+
+    return buffer_pos;
 }
