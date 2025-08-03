@@ -34,6 +34,7 @@ class Buffer {
     void print() const;
     size_t cursor_pos() const;
     std::string contents() const;
+    void replace(size_t pos, const std::string &str);
 };
 
 #endif

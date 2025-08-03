@@ -100,3 +100,19 @@ std::string Buffer::contents() const {
     }
     return content;
 }
+
+void Buffer::replace(size_t pos, const std::string &str) {
+    if (pos >= size()) {
+        std::cerr << "Error: Position out of bounds for replace operation."
+                  << std::endl;
+        return;
+    }
+    has_input = true;
+    move_cursor(pos);
+
+    size_t max_replace_len = std::min(str.size(), size() - pos);
+
+    for (size_t i = 0; i < max_replace_len; ++i) {
+        buffer[gap_end + i] = str[i];
+    }
+}

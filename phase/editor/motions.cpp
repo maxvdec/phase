@@ -262,8 +262,37 @@ std::vector<Action> make_edit_motions() {
             editor.change_mode();
             refresh();
         }};
+    Action toggle_case = {
+        .keys =
+            {
+                {'u', {Mode::Normal}},
+            },
+        .description = "Toggle case of the character under the cursor",
+        .command = [](Editor &editor) {
+            std::string buffer_contents = editor.buffer.contents();
+            if (editor.editing_x < 0 ||
+                editor.editing_line >= count_lines(buffer_contents)) {
+                return;
+            }
+            std::string current_line =
+                get_line(buffer_contents, editor.editing_line);
+            if (editor.editing_x >= current_line.length()) {
+                return;
+            }
+            char &ch = current_line[editor.editing_x];
+            if (isupper(ch)) {
+                ch = tolower(ch);
+            } else if (islower(ch)) {
+                ch = toupper(ch);
+            }
+            editor.buffer.replace(editor.buffer.cursor_pos(),
+                                  std::string(1, ch));
+            move(editor.editing_line, editor.editing_x + line_padding);
+            refresh();
+        }};
 
     motions.push_back(break_line);
+    motions.push_back(toggle_case);
     return motions;
 }
 
