@@ -237,7 +237,7 @@ WordOffset Editor::get_next_word() {
                 get_line(buffer_contents, next_line);
             int first_word_pos = 0;
             while (first_word_pos < next_line_content.length() &&
-                   is_empty(next_line_content[first_word_pos])) {
+                   is_word_separator(next_line_content[first_word_pos])) {
                 first_word_pos++;
             }
             return {first_word_pos, next_line, 0};
@@ -248,35 +248,20 @@ WordOffset Editor::get_next_word() {
 
     int pos = editing_x;
 
-    if (is_word_separator(current_line[pos])) {
+    if (pos < current_line.length() && !is_word_separator(current_line[pos])) {
         while (pos < current_line.length() &&
-               is_word_separator(current_line[pos])) {
+               !is_word_separator(current_line[pos])) {
             pos++;
         }
-        if (pos >= current_line.length()) {
-            int next_line = editing_line + 1;
-            if (next_line < count_lines(buffer_contents)) {
-                std::string next_line_content =
-                    get_line(buffer_contents, next_line);
-                int first_word_pos = 0;
-                while (first_word_pos < next_line_content.length() &&
-                       is_empty(next_line_content[first_word_pos])) {
-                    first_word_pos++;
-                }
-                return {first_word_pos, next_line, 0};
-            }
-            return {static_cast<int>(current_line.length()), editing_line, 0};
-        }
-        return {pos, editing_line, 0};
-    }
-
-    while (pos < current_line.length() &&
-           !is_word_separator(current_line[pos])) {
+    } else if (pos < current_line.length() &&
+               is_word_separator(current_line[pos]) &&
+               !is_empty(current_line[pos])) {
+        pos++;
+    } else if (pos < current_line.length() && is_empty(current_line[pos])) {
         pos++;
     }
 
-    while (pos < current_line.length() &&
-           is_word_separator(current_line[pos])) {
+    while (pos < current_line.length() && is_empty(current_line[pos])) {
         pos++;
     }
 

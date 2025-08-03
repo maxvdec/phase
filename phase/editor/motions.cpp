@@ -237,6 +237,55 @@ std::vector<Action> make_move_motions() {
                             move(y, x + line_padding);
                             refresh();
                         }};
+    Action move_end_word = {
+        .keys =
+            {
+                {'e', {Mode::Normal}},
+            },
+        .description = "Move to the end of the next word",
+        .command = [](Editor &editor) {
+            auto [start_x, target_y, _] = editor.get_next_word();
+
+            const std::string line =
+                get_line(editor.buffer.contents(), target_y);
+
+            if (start_x >= line.length() || line.empty()) {
+                editor.editing_x = start_x;
+                editor.editing_line = target_y;
+                int buffer_pos =
+                    screen_to_buffer(start_x, target_y, editor.buffer);
+                if (buffer_pos >= 0) {
+                    editor.buffer.move_cursor(buffer_pos);
+                    move(target_y, start_x + line_padding);
+                }
+                refresh();
+                return;
+            }
+
+            int end_x = start_x;
+
+            if (!is_word_separator(line[end_x])) {
+                while (end_x < line.length() &&
+                       !is_word_separator(line[end_x])) {
+                    end_x++;
+                }
+                if (end_x > start_x) {
+                    end_x--;
+                }
+            }
+
+            editor.editing_x = end_x;
+            editor.editing_line = target_y;
+
+            int buffer_pos = screen_to_buffer(end_x, target_y, editor.buffer);
+            if (buffer_pos < 0) {
+                return;
+            }
+
+            editor.buffer.move_cursor(buffer_pos);
+            move(target_y, end_x + line_padding);
+            refresh();
+        }};
     motions.push_back(move_left);
     motions.push_back(move_right);
     motions.push_back(move_up);
@@ -244,6 +293,7 @@ std::vector<Action> make_move_motions() {
     motions.push_back(move_end_of_line);
     motions.push_back(move_begin_of_line);
     motions.push_back(move_word);
+    motions.push_back(move_end_word);
     return motions;
 }
 
